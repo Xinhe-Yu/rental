@@ -1,3 +1,15 @@
+-- Create the database
+CREATE DATABASE IF NOT EXISTS chatop;
+
+-- Use the new database
+USE chatop;
+
+-- Drop existing tables if they exist
+DROP TABLE IF EXISTS `MESSAGES`;
+DROP TABLE IF EXISTS `RENTALS`;
+DROP TABLE IF EXISTS `USERS`;
+
+-- SQL Script provided by front-end
 CREATE TABLE `USERS` (
   `id` integer PRIMARY KEY AUTO_INCREMENT,
   `email` varchar(255),
@@ -30,8 +42,12 @@ CREATE TABLE `MESSAGES` (
 
 CREATE UNIQUE INDEX `USERS_index` ON `USERS` (`email`);
 
-ALTER TABLE `USERS` ADD FOREIGN KEY (`id`) REFERENCES `RENTALS` (`owner_id`);
+-- Create necessary indexes for foreign keys
+CREATE INDEX `RENTALS_owner_index` ON `RENTALS` (`owner_id`);
+CREATE INDEX `MESSAGES_user_index` ON `MESSAGES` (`user_id`);
+CREATE INDEX `MESSAGES_rental_index` ON `MESSAGES` (`rental_id`);
 
-ALTER TABLE `USERS` ADD FOREIGN KEY (`id`) REFERENCES `MESSAGES` (`user_id`);
-
-ALTER TABLE `RENTALS` ADD FOREIGN KEY (`id`) REFERENCES `MESSAGES` (`rental_id`);
+-- Add foreign key constraints
+ALTER TABLE `RENTALS` ADD FOREIGN KEY (`owner_id`) REFERENCES `USERS` (`id`);
+ALTER TABLE `MESSAGES` ADD FOREIGN KEY (`user_id`) REFERENCES `USERS` (`id`);
+ALTER TABLE `MESSAGES` ADD FOREIGN KEY (`rental_id`) REFERENCES `RENTALS` (`id`);
