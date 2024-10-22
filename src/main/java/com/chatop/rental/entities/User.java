@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "USERS")
+@Table(name = "users")
 public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,6 +23,8 @@ public class User {
   @Column(nullable = false)
   private String password;
 
+  private String role;
+
   @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
@@ -34,9 +36,10 @@ public class User {
     // JPA requires a no-arg constructor
   }
 
-  public User(String name, String email, String password) {
+  public User(String name, String email, String password, String role) {
     this.name = name;
     this.email = email;
+    this.role = (role != null && !role.isEmpty()) ? role : "USER";
     setPassword(password);
   }
 
@@ -63,6 +66,14 @@ public class User {
   public void setPassword(String password) {
     BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     this.password = passwordEncoder.encode(password);  // Hash the password before setting
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public String getRole() {
+    return role;
   }
 
   public LocalDate getCreatedAt() {

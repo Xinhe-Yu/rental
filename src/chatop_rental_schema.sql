@@ -1,22 +1,27 @@
+DROP DATABASE IF EXISTS chatop;
 CREATE DATABASE IF NOT EXISTS chatop;
 USE chatop;
 
 -- Drop existing tables if they exist
-DROP TABLE IF EXISTS `MESSAGES`;
-DROP TABLE IF EXISTS `RENTALS`;
-DROP TABLE IF EXISTS `USERS`;
+DROP TABLE IF EXISTS `messages`;
+DROP TABLE IF EXISTS `rentals`;
+DROP TABLE IF EXISTS `users`;
 
 -- content in script.sql provided by front-end
-CREATE TABLE `USERS` (
+CREATE TABLE `users` (
   `id` integer PRIMARY KEY AUTO_INCREMENT,
-  `email` varchar(255),
-  `name` varchar(255),
-  `password` varchar(255),
+  `email` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `role` varchar(255) NOT NULL,
   `created_at` timestamp,
   `updated_at` timestamp
 );
 
-CREATE TABLE `RENTALS` (
+INSERT INTO users (email, name, password, role) VALUES ('user@test.fr', 'user', '$2y$10$.qkbukzzX21D.bqbI.B2R.tvWP90o/Y16QRWVLodw51BHft7ZWbc.', 'USER'),
+('admin@test.fr', 'admin', '$2y$10$kp1V7UYDEWn17WSK16UcmOnFd1mPFVF6UkLrOOCGtf24HOYt8p1iC', 'ADMIN');
+
+CREATE TABLE `rentals` (
   `id` integer PRIMARY KEY AUTO_INCREMENT,
   `name` varchar(255),
   `surface` numeric,
@@ -28,7 +33,7 @@ CREATE TABLE `RENTALS` (
   `updated_at` timestamp
 );
 
-CREATE TABLE `MESSAGES` (
+CREATE TABLE `messages` (
   `id` integer PRIMARY KEY AUTO_INCREMENT,
   `rental_id` integer,
   `user_id` integer,
@@ -37,14 +42,14 @@ CREATE TABLE `MESSAGES` (
   `updated_at` timestamp
 );
 
-CREATE UNIQUE INDEX `USERS_index` ON `USERS` (`email`);
+CREATE UNIQUE INDEX `users_index` ON `users` (`email`);
 
 -- Create necessary indexes for foreign keys
-CREATE INDEX `RENTALS_owner_index` ON `RENTALS` (`owner_id`);
-CREATE INDEX `MESSAGES_user_index` ON `MESSAGES` (`user_id`);
-CREATE INDEX `MESSAGES_rental_index` ON `MESSAGES` (`rental_id`);
+CREATE INDEX `rentals_owner_index` ON `rentals` (`owner_id`);
+CREATE INDEX `messages_user_index` ON `messages` (`user_id`);
+CREATE INDEX `messages_rental_index` ON `messages` (`rental_id`);
 
 -- Add foreign key constraints
-ALTER TABLE `RENTALS` ADD FOREIGN KEY (`owner_id`) REFERENCES `USERS` (`id`);
-ALTER TABLE `MESSAGES` ADD FOREIGN KEY (`user_id`) REFERENCES `USERS` (`id`);
-ALTER TABLE `MESSAGES` ADD FOREIGN KEY (`rental_id`) REFERENCES `RENTALS` (`id`);
+ALTER TABLE `rentals` ADD FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`);
+ALTER TABLE `messages` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+ALTER TABLE `messages` ADD FOREIGN KEY (`rental_id`) REFERENCES `rentals` (`id`);
