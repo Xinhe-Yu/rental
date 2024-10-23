@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "RENTALS")
+@Table(name = "rentals")
 public class Rental {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -96,6 +96,10 @@ public class Rental {
 
     public User getOwner() {
         return owner;
+    }
+
+    public Long getOwnerId() {
+        return owner.getId();
     }
 
     public LocalDate getCreatedAt() {
