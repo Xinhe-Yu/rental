@@ -98,6 +98,10 @@ public class Rental {
         return owner;
     }
 
+    public Long getOwnerId() {
+        return owner.getId();
+    }
+
     public LocalDate getCreatedAt() {
         return createdAt.toLocalDate(); // Convert LocalDateTime to LocalDate
     }

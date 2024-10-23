@@ -1,8 +1,6 @@
 package com.chatop.rental.entities;
 
 import jakarta.persistence.*;
-import org.springframework.cglib.core.Local;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,7 +26,7 @@ public class User {
   @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
-  @Column(name = "updated_at")
+  @Column(name = "updated_at", nullable = false)
   private LocalDateTime updatedAt;
 
   // No-Argument Constructor
@@ -39,8 +37,7 @@ public class User {
   public User(String name, String email, String password, String role) {
     this.name = name;
     this.email = email;
-    this.role = (role != null && !role.isEmpty()) ? role : "USER";
-    setPassword(password);
+
   }
 
   public Long getId() {
@@ -63,13 +60,16 @@ public class User {
     this.email = email;
   }
 
-  public void setPassword(String password) {
-    BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-    this.password = passwordEncoder.encode(password);  // Hash the password before setting
+  public void setEncodedPassword(String password) {
+    this.password = password;
   }
 
   public String getPassword() {
     return password;
+  }
+
+  public void setRole(String role) {
+    this.role = role == "" ? "USER" : role;
   }
 
   public String getRole() {
