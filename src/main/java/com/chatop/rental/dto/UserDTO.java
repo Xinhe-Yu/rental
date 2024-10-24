@@ -1,9 +1,37 @@
 package com.chatop.rental.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.time.LocalDate;
+
 public class UserDTO {
+    @JsonProperty("id")
+    private Long id;
+
     private String name;
     private String email;
+
+    @JsonIgnore
     private String password;
+
+    @JsonProperty("created_at")
+    private LocalDate createdAt;
+
+    @JsonProperty("updated_at")
+    private LocalDate updatedAt;
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setCreatedAt(LocalDate createdAt){
+        this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(LocalDate updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 
     public String getName() {
         return name;
