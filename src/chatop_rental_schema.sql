@@ -7,7 +7,8 @@ DROP TABLE IF EXISTS `messages`;
 DROP TABLE IF EXISTS `rentals`;
 DROP TABLE IF EXISTS `users`;
 
--- content in script.sql provided by front-end
+-- content in script.sql provided by front-end with little modification
+
 CREATE TABLE `users` (
   `id` integer PRIMARY KEY AUTO_INCREMENT,
   `email` varchar(255) NOT NULL,
@@ -29,8 +30,8 @@ CREATE TABLE `rentals` (
   `picture` varchar(255),
   `description` varchar(2000),
   `owner_id` integer NOT NULL,
-  `created_at` timestamp,
-  `updated_at` timestamp
+  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 INSERT INTO rentals (id, name, surface, price, picture, description, owner_id, created_at, updated_at)
@@ -52,8 +53,8 @@ CREATE TABLE `messages` (
   `rental_id` integer,
   `user_id` integer,
   `message` varchar(2000),
-  `created_at` timestamp,
-  `updated_at` timestamp
+  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE UNIQUE INDEX `users_index` ON `users` (`email`);

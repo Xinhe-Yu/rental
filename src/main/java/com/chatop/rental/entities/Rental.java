@@ -20,6 +20,7 @@ public class Rental {
     @Column(nullable = false)
     private Double price;
 
+    @Column
     private String picture;
 
     @Column(length = 2000)
@@ -86,6 +87,21 @@ public class Rental {
         this.picture = picture;
     }
 
+    public String[] getPictureArray() {
+        if (picture == null || picture.trim().isEmpty()) {
+            return new String[0];
+        }
+        return picture.split(",");
+    }
+
+    public void setPictureArray(String[] pictures) {
+        if (pictures == null || pictures.length == 0) {
+            this.picture = "";
+        } else {
+            this.picture = String.join(",", pictures);
+        }
+    }
+
     public String getDescription() {
         return description;
     }
@@ -96,6 +112,10 @@ public class Rental {
 
     public User getOwner() {
         return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 
     public Long getOwnerId() {
