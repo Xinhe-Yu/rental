@@ -2,6 +2,7 @@ package com.chatop.rental.services;
 
 import com.chatop.rental.configuration.CustomUserDetails;
 import com.chatop.rental.dto.UserDTO;
+import com.chatop.rental.dto.UserRegisterDTO;
 import com.chatop.rental.entities.User;
 import com.chatop.rental.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +47,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return user;
     }
 
-    public void save(UserDTO userDTO) {
+    public void save(UserRegisterDTO userDTO) {
         User user = new User();
         user.setName(userDTO.getName());
         user.setEmail(userDTO.getEmail());
