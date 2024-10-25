@@ -3,6 +3,7 @@ package com.chatop.rental.controllers;
 import com.chatop.rental.configuration.CustomUserDetails;
 import com.chatop.rental.dto.RentalDTO;
 import com.chatop.rental.dto.RentalListDTO;
+import com.chatop.rental.dto.RentalRequestDTO;
 import com.chatop.rental.entities.Rental;
 import com.chatop.rental.repositories.RentalRepository;
 import com.chatop.rental.services.RentalService;
@@ -117,7 +118,7 @@ public class RentalController {
     })
     @PostMapping
     public ResponseEntity<Map<String, String>> createRental(
-            @RequestBody RentalDTO rentalDTO,
+            @RequestBody RentalRequestDTO rentalDTO,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
 
         rentalService.createRental(rentalDTO, userDetails);
@@ -171,7 +172,10 @@ public class RentalController {
             )
     })
     @PutMapping
-    public ResponseEntity<Map<String, String>> updateRental(@PathVariable Long id, @RequestBody RentalDTO rentalDTO, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<Map<String, String>> updateRental(
+            @PathVariable Long id,
+            @RequestBody RentalRequestDTO rentalDTO,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         rentalService.updateRental(id, rentalDTO, userDetails);
         return ResponseEntity.ok(Map.of("message", "Rental updated !"));
     }
