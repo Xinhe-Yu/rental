@@ -4,6 +4,7 @@ import com.chatop.rental.configuration.CustomUserDetails;
 import com.chatop.rental.dto.RentalDTO;
 import com.chatop.rental.dto.RentalListDTO;
 import com.chatop.rental.dto.RentalRequestDTO;
+import com.chatop.rental.dto.RentalUpdateDTO;
 import com.chatop.rental.entities.Rental;
 import com.chatop.rental.repositories.RentalRepository;
 import com.chatop.rental.services.RentalService;
@@ -25,6 +26,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -179,12 +182,15 @@ public class RentalController {
                     ))
             )
     })
-    @PutMapping
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, String>> updateRental(
             @PathVariable Long id,
-            @RequestBody RentalRequestDTO rentalDTO,
+            @RequestParam("name") String name,
+            @RequestParam("surface") Double surface,
+            @RequestParam("price") Double price,
+            @RequestParam("description") String description,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        rentalService.updateRental(id, rentalDTO, userDetails);
+        rentalService.updateRental(id, name, surface, price, description, userDetails);
         return ResponseEntity.ok(Map.of("message", "Rental updated !"));
     }
 }
