@@ -1,6 +1,9 @@
 package com.chatop.rental.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class MessageDTO {
+    @JsonProperty("rental_id")
     private Long rentalId;
     private String message;
 

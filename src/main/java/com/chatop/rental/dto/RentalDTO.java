@@ -60,19 +60,23 @@ public class RentalDTO {
     }
 
     public String[] getPictures() {
-        return pictures != null ? pictures : new String[0];
+        return pictures;
     }
 
     public void setPictures(String[] pictures) {
-        this.pictures = pictures != null ? pictures : new String[0];
+        this.pictures = pictures;
     }
 
     @JsonIgnore
-    public void setPicturesFromString(String picturesStr) {
+    public void setPicturesFromString(String baseUrl, String picturesStr) {
         if (picturesStr == null || picturesStr.trim().isEmpty()) {
             this.pictures = new String[0];
         } else {
-            this.pictures = picturesStr.split(",");
+            if (picturesStr.startsWith("http")) {
+                this.pictures = new String[] {picturesStr};
+            } else {
+                this.pictures = new String[] {baseUrl + picturesStr};
+            }
         }
     }
 
