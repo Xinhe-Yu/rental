@@ -67,6 +67,7 @@ public class RentalDTO {
         this.pictures = pictures != null ? pictures : new String[0];
     }
 
+    @JsonIgnore
     public void setPicturesFromString(String picturesStr) {
         if (picturesStr == null || picturesStr.trim().isEmpty()) {
             this.pictures = new String[0];

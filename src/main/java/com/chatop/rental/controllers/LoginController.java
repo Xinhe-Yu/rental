@@ -1,9 +1,18 @@
 package com.chatop.rental.controllers;
 
 import com.chatop.rental.dto.LoginRequest;
+import com.chatop.rental.dto.RentalDTO;
 import com.chatop.rental.dto.UserDTO;
+import com.chatop.rental.dto.UserRegisterDTO;
 import com.chatop.rental.services.CustomUserDetailsService;
 import com.chatop.rental.services.JWTService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +30,7 @@ import com.chatop.rental.entities.User;
 
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "Authentication", description = "Authentication management APIs")
 public class LoginController {
 
     private final CustomUserDetailsService userDetailsService;
@@ -36,8 +46,31 @@ public class LoginController {
         this.jwtService = jwtService;
     }
 
+    @Operation(
+            summary = "Create a new count",
+            description = "Create a new count."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Rental created with success",
+                    content = @Content(schema = @Schema(
+                            type = "object",
+                            example = "{\"message\": \"User registered successfully !\"}"
+                    ))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Bad request",
+                    content = @Content(schema = @Schema(
+                            type = "object",
+                            example = "{\"error\": \"Registration failed !\"}"
+                    ))
+            ),
+
+    })
     @PostMapping("/register")
-    public ResponseEntity<Map<String, String>> registerUser(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<Map<String, String>> registerUser(@RequestBody UserRegisterDTO userDTO) {
         try {
             userDetailsService.save(userDTO);
             return ResponseEntity.ok(Map.of("message", "User registered successfully"));
@@ -46,6 +79,28 @@ public class LoginController {
         }
     }
 
+    @Operation(
+            summary = "Login user",
+            description = "Authenticate user with email and password and return JWT token"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Authentication successful",
+                    content = @Content(schema = @Schema(
+                            type = "object",
+                            example = "{\"token\": \"eyJHbGciOiJIUzI1N... !\"}"
+                    ))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Authentication failed",
+                    content = @Content(schema = @Schema(
+                            type = "object",
+                            example = "{\"error\": \"Authentication failed\"}"
+                    ))
+            )
+    })
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest loginRequest) {
         try {
@@ -56,11 +111,26 @@ public class LoginController {
             return new ResponseEntity<>(Map.of("error", "Authentication failed"), HttpStatus.UNAUTHORIZED);
         }
     }
-    @GetMapping("/gogo")
-    public String getResource() {
-        return "a value...";
-    }
 
+    @Operation(
+            summary = "Get current user information",
+            description = "Retrieve information about the currently authenticated user"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserDTO.class)))
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "User not authenticated",
+                    content = @Content(schema = @Schema(
+                            type = "object",
+                            example = "{\"error\": \"User not authenticated\"}"
+                    ))
+            )
+    })
     @GetMapping("/me")
     public ResponseEntity<Map<String, Object>> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) {
@@ -80,13 +150,4 @@ public class LoginController {
         }
 
     }
-//    @GetMapping("/user")
-//    public String getUser() {
-//        return "Welcome, User";
-//    }
-//
-//    @GetMapping("/admin")
-//    public String getAdmin() {
-//        return "Welcome, Admin";
-//    }
 }
