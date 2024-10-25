@@ -16,11 +16,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.hibernate.annotations.Array;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -29,6 +32,7 @@ import java.util.Map;
 @RequestMapping("/rentals")
 @Tag(name = "Rentals", description = "Rental management APIs")
 public class RentalController {
+
     private final RentalService rentalService;
     public RentalController(RentalService rentalService) {
         this.rentalService = rentalService;
@@ -116,11 +120,15 @@ public class RentalController {
                     ))
             )
     })
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Map<String, String>> createRental(
-            @RequestBody RentalRequestDTO rentalDTO,
+            @RequestParam("name") String name,
+            @RequestParam("surface") Double surface,
+            @RequestParam("price") Double price,
+            @RequestParam("description") String description,
+            @RequestParam("picture")MultipartFile picture,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-
+        RentalRequestDTO rentalDTO = new RentalRequestDTO(name, surface, price, picture, description);
         rentalService.createRental(rentalDTO, userDetails);
         return ResponseEntity.ok(Map.of("message", "Rental created"));
     }

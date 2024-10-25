@@ -3,6 +3,7 @@ package com.chatop.rental.services;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -27,40 +28,26 @@ public class FileService {
         }
     }
 
-    public String saveBase64Image(String base64String) {
+    public String saveMultipartFile(MultipartFile file) {
         try {
-            String base64Image = base64String;
-            if (base64String.contains(",")) {
-                base64Image = base64String.split(",")[1];
-            }
-
-            String fileName = UUID.randomUUID().toString() + ".jpg";
-
-            byte[] imageBytes = Base64.getDecoder().decode(base64Image);
+            String fileName = UUID.randomUUID().toString() + getFileExtension(file.getOriginalFilename());
             Path filePath = Paths.get(uploadDir, fileName);
-            Files.write(filePath, imageBytes);
-
+            Files.write(filePath, file.getBytes());
             return fileName;
         } catch (IOException e) {
-            throw new RuntimeException("Failed to save image", e);
+            throw new RuntimeException("Failed to save file", e);
         }
     }
 
-    public boolean isBase64Image(String str) {
-        try {
-            new URL(str);
-            return false;
-        } catch (MalformedURLException e) {
-            try {
-                String base64String = str;
-                if (str.contains(",")) {
-                    base64String = str.split(",")[1];
-                }
-                Base64.getDecoder().decode(base64String);
-                return true;
-            } catch (IllegalAccessError ex) {
-                return false;
-            }
+    public boolean isImageFile(MultipartFile file) {
+        String contentType = file.getContentType();
+        return contentType != null && (contentType.startsWith("image/"));
+    }
+
+    private String getFileExtension(String fileName) {
+        if (fileName != null && fileName.contains(".")) {
+            return fileName.substring(fileName.lastIndexOf("."));
         }
+        return "";
     }
 }

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.reflect.Array;
@@ -30,6 +31,9 @@ public class RentalService {
 
     @Value("${app.upload.base-url}")
     private String baseUrl;
+
+    @Value("${server.servlet.contextPath:/api}")
+    private String contextPath;
 
     @Autowired
     public RentalService(RentalRepository rentalRepository,
@@ -90,7 +94,7 @@ public class RentalService {
         dto.setName(rental.getName());
         dto.setSurface(rental.getSurface());
         dto.setPrice(rental.getPrice());
-        dto.setPicturesFromString(rental.getPicture());
+        dto.setPicturesFromString(baseUrl, rental.getPicture());
         dto.setDescription(rental.getDescription());
         dto.setOwnerId(rental.getOwnerId());
         dto.setCreatedAt(rental.getCreatedAt());
@@ -99,28 +103,21 @@ public class RentalService {
     }
 
     private Rental convertToEntity(Rental rental, RentalRequestDTO dto) {
+        String filePath = processPictures(dto.getPicture());
+
         rental.setName(dto.getName());
         rental.setSurface(dto.getSurface());
         rental.setPrice(dto.getPrice());
-        String[] processedPictures = processPictures(dto.getPictures());
-        rental.setPicture(String.join(",", processedPictures));
+        rental.setPicture(filePath);
         rental.setDescription(dto.getDescription());
         return rental;
     }
 
-    private String[] processPictures(String[] pictures) {
-        if (pictures == null) {
-            return new String[0];
+    private String processPictures(MultipartFile picture) {
+        if (picture == null || !fileService.isImageFile(picture)) {
+            return "";
         }
-
-        return Arrays.stream(pictures)
-                .map(pic -> {
-                    if (fileService.isBase64Image(pic)) {
-                        return fileService.saveBase64Image(pic);
-                    }
-                    return pic;
-                })
-                .toArray(String[]::new);
+        return fileService.saveMultipartFile(picture);
     }
 
     private RentalListDTO convertToListDTO(Rental rental) {
@@ -132,9 +129,8 @@ public class RentalService {
         dto.setDescription(rental.getDescription());
         dto.setOwnerId(rental.getOwnerId());
         dto.setCreatedAt(rental.getCreatedAt());
-        dto.setUpdatedAt(rental.getUpdatedAt());
-        String[] pics = rental.getPicture().split(",");
-        dto.setPicture(pics.length > 0 ? pics[0] : "");
+        dto.setUpdatedAt(rental.getUpdatedAt());;
+        dto.setPicture(baseUrl, rental.getPicture());
         return dto;
     }
 

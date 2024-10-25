@@ -1,27 +1,29 @@
 package com.chatop.rental.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.swagger.v3.oas.annotations.media.Schema;
-
-import java.time.LocalDate;
+import org.springframework.web.multipart.MultipartFile;
 
 public class RentalRequestDTO {
     private String name;
     private Double surface;
     private Double price;
 
-    @Schema(description = "Array of pictures (URLs or Base64 encoded strings")
-    @JsonProperty("picture")
-    private String[] pictures;
+    private MultipartFile picture;
 
     private String description;
 
-    @JsonProperty("owner_id")
-    private Long ownerId;
-
     // default constructor
-    public RentalRequestDTO() {}
+    public RentalRequestDTO(String name,
+                            Double surface,
+                            Double price,
+                            MultipartFile picture,
+                            String description) {
+        this.name = name;
+        this.surface = surface;
+        this.price = price;
+        this.picture = picture;
+        this.description = description;
+    }
 
     public String getName() {
         return name;
@@ -47,12 +49,12 @@ public class RentalRequestDTO {
         this.surface = surface;
     }
 
-    public String[] getPictures() {
-        return pictures != null ? pictures : new String[0];
+    public MultipartFile getPicture() {
+        return picture;
     }
 
-    public void setPictures(String[] pictures) {
-        this.pictures = pictures != null ? pictures : new String[0];
+    public void setPicture(MultipartFile picture) {
+        this.picture = picture;
     }
 
     public String getDescription() {
@@ -62,13 +64,4 @@ public class RentalRequestDTO {
     public void setDescription(String description) {
         this.description = description;
     }
-
-    public Long getOwnerId() {
-        return ownerId;
-    }
-
-    public void setOwnerId(Long ownerId) {
-        this.ownerId = ownerId;
-    }
-
 }
