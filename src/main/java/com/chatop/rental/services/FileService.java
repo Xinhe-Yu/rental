@@ -6,12 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Base64;
 import java.util.UUID;
 
 @Service
@@ -30,7 +27,7 @@ public class FileService {
 
     public String saveMultipartFile(MultipartFile file) {
         try {
-            String fileName = UUID.randomUUID().toString() + getFileExtension(file.getOriginalFilename());
+            String fileName = UUID.randomUUID() + getFileExtension(file.getOriginalFilename());
             Path filePath = Paths.get(uploadDir, fileName);
             Files.write(filePath, file.getBytes());
             return fileName;

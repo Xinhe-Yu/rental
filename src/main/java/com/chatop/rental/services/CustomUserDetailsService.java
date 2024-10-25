@@ -1,27 +1,20 @@
 package com.chatop.rental.services;
 
 import com.chatop.rental.configuration.CustomUserDetails;
-import com.chatop.rental.dto.UserDTO;
 import com.chatop.rental.dto.UserRegisterDTO;
 import com.chatop.rental.entities.User;
 import com.chatop.rental.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private UserRepository userRepository;
-    private BCryptPasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     public CustomUserDetailsService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
@@ -54,11 +47,5 @@ public class CustomUserDetailsService implements UserDetailsService {
         user.setEncodedPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setRole("");
         userRepository.save(user);
-    }
-
-    private List<GrantedAuthority> getGrantedAuthorities (String role) {
-        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_" + role));
-        return authorities;
     }
 }

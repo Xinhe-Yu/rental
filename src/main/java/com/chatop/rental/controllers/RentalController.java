@@ -3,10 +3,6 @@ package com.chatop.rental.controllers;
 import com.chatop.rental.configuration.CustomUserDetails;
 import com.chatop.rental.dto.RentalDTO;
 import com.chatop.rental.dto.RentalListDTO;
-import com.chatop.rental.dto.RentalRequestDTO;
-import com.chatop.rental.dto.RentalUpdateDTO;
-import com.chatop.rental.entities.Rental;
-import com.chatop.rental.repositories.RentalRepository;
 import com.chatop.rental.services.RentalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -15,9 +11,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-import org.hibernate.annotations.Array;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +19,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -129,10 +120,9 @@ public class RentalController {
             @RequestParam("surface") Double surface,
             @RequestParam("price") Double price,
             @RequestParam("description") String description,
-            @RequestParam("picture")MultipartFile picture,
+            @RequestParam("picture") MultipartFile picture,
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        RentalRequestDTO rentalDTO = new RentalRequestDTO(name, surface, price, picture, description);
-        rentalService.createRental(rentalDTO, userDetails);
+        rentalService.createRental(name, surface, price, description, picture, userDetails);
         return ResponseEntity.ok(Map.of("message", "Rental created"));
     }
 

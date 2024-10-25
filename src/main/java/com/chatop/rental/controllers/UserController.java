@@ -1,6 +1,5 @@
 package com.chatop.rental.controllers;
 
-import com.chatop.rental.dto.RentalDTO;
 import com.chatop.rental.dto.UserDTO;
 import com.chatop.rental.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
