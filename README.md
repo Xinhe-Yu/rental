@@ -35,3 +35,18 @@ The application will start on the port 3001 (localhost). should see output in th
 After starting the application, you can view the API documentation at:
 
 API Documentation: http://localhost:3001/api/swagger-ui/index.html
+
+## 2. Libraries and Packages Overview
+This section provides an overview of the main libraries and packages used in the Chatop Rental backend application. Each package contributes essential functionality to ensure security, data management, API documentation, and secure handling of sensitive information.
+
+### Spring Security with OAuth2 and JWT
+Provides robust authentication and authorization mechanisms for the entire application.
+
+### Spring Data JPA and MySQL Connector
+Simplifies database interaction by managing Object-Relational Mapping (ORM) between Java objects and database tables.
+
+### Springdoc OpenAPI
+Generates interactive API documentation.
+
+### Java-Dotenv
+Protects sensitive information by enabling secure configuration with environment variables.
