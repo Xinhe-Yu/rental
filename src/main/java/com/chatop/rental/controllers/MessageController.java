@@ -1,8 +1,7 @@
 package com.chatop.rental.controllers;
 
 import com.chatop.rental.configuration.CustomUserDetails;
-import com.chatop.rental.dto.MessageDTO;
-import com.chatop.rental.services.CustomUserDetailsService;
+import com.chatop.rental.dto.MessageRequestDTO;
 import com.chatop.rental.services.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -62,7 +61,7 @@ public class MessageController {
             )
     })
     @PostMapping
-    public ResponseEntity<Map<String, String>> createMessage(@RequestBody MessageDTO messageDTO,
+    public ResponseEntity<Map<String, String>> createMessage(@RequestBody MessageRequestDTO messageDTO,
                                                              @AuthenticationPrincipal CustomUserDetails userDetails) {
         messageService.createMessage(messageDTO, userDetails);
         return ResponseEntity.ok(Map.of("message", "Message send with success"));
