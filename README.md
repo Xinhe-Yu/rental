@@ -17,13 +17,7 @@ mvn clean install
 
 2. Configure `application.properties`
 
-In the project’s `src/main/resources directory`, locate the `application.properties` file. Configure the following properties to match your MySQL setup:
-```properties
-properties# Database connection details
-spring.datasource.url=jdbc:mysql://localhost:3306/chatop
-spring.datasource.username=root
-spring.datasource.password=<YOUR_PASSWORD>
-```
+Locate the `.env` file. Add your MySQL root's password to `DB_PASSWORD`.
 
 3. Initialize the Database Schema
 With MySQL installed and running, load the initial database schema:
