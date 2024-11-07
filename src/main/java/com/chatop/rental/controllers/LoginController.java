@@ -31,111 +31,67 @@ import com.chatop.rental.entities.User;
 @Tag(name = "Authentication", description = "Authentication management APIs")
 public class LoginController {
 
-    private final CustomUserDetailsService userDetailsService;
-    private final UserService userService;
-    private final AuthenticationManager authenticationManager;
-    private final JWTService jwtService;
+  private final CustomUserDetailsService userDetailsService;
+  private final UserService userService;
+  private final AuthenticationManager authenticationManager;
+  private final JWTService jwtService;
 
-    @Autowired
-    public LoginController(CustomUserDetailsService userDetailsService,
-                           UserService userService,
-                           AuthenticationManager authenticationManager,
-                           JWTService jwtService) {
-        this.userDetailsService = userDetailsService;
-        this.userService = userService;
-        this.authenticationManager = authenticationManager;
-        this.jwtService = jwtService;
+  @Autowired
+  public LoginController(CustomUserDetailsService userDetailsService,
+      UserService userService,
+      AuthenticationManager authenticationManager,
+      JWTService jwtService) {
+    this.userDetailsService = userDetailsService;
+    this.userService = userService;
+    this.authenticationManager = authenticationManager;
+    this.jwtService = jwtService;
+  }
+
+  @Operation(summary = "Create a new count", description = "Create a new count.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Count created with success", content = @Content(schema = @Schema(type = "object", example = "{\"token\": \"eyJHbGciOiJIUzI1N... !\"}"))),
+      @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(type = "object", example = "{\"error\": \"Registration failed !\"}"))),
+
+  })
+  @PostMapping("/register")
+  public ResponseEntity<Map<String, String>> registerUser(@RequestBody UserRegisterDTO userDTO) {
+    try {
+      userDetailsService.save(userDTO);
+      Authentication authentication = authenticationManager
+          .authenticate(new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword()));
+      String token = jwtService.generateToken(authentication);
+      return ResponseEntity.ok(Map.of("token", token));
+    } catch (Exception e) {
+      return new ResponseEntity<>(Map.of("error", "Registration failed: " + e.getMessage()), HttpStatus.BAD_REQUEST);
     }
+  }
 
-    @Operation(
-            summary = "Create a new count",
-            description = "Create a new count."
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Count created with success",
-                    content = @Content(schema = @Schema(
-                            type = "object",
-                            example = "{\"message\": \"User registered successfully !\"}"
-                    ))
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Bad request",
-                    content = @Content(schema = @Schema(
-                            type = "object",
-                            example = "{\"error\": \"Registration failed !\"}"
-                    ))
-            ),
-
-    })
-    @PostMapping("/register")
-    public ResponseEntity<Map<String, String>> registerUser(@RequestBody UserRegisterDTO userDTO) {
-        try {
-            userDetailsService.save(userDTO);
-            return ResponseEntity.ok(Map.of("message", "User registered successfully"));
-        } catch (Exception e) {
-            return new ResponseEntity<>(Map.of("error", "Registration failed: " + e.getMessage()), HttpStatus.BAD_REQUEST);
-        }
+  @Operation(summary = "Login user", description = "Authenticate user with email and password and return JWT token")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Authentication successful", content = @Content(schema = @Schema(type = "object", example = "{\"token\": \"eyJHbGciOiJIUzI1N... !\"}"))),
+      @ApiResponse(responseCode = "401", description = "Authentication failed", content = @Content(schema = @Schema(type = "object", example = "{\"error\": \"Authentication failed\"}")))
+  })
+  @PostMapping("/login")
+  public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequestDTO dto) {
+    try {
+      Authentication authentication = authenticationManager
+          .authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
+      String token = jwtService.generateToken(authentication);
+      return ResponseEntity.ok(Map.of("token", token));
+    } catch (AuthenticationException e) {
+      return new ResponseEntity<>(Map.of("error", "Authentication failed"), HttpStatus.UNAUTHORIZED);
     }
+  }
 
-    @Operation(
-            summary = "Login user",
-            description = "Authenticate user with email and password and return JWT token"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Authentication successful",
-                    content = @Content(schema = @Schema(
-                            type = "object",
-                            example = "{\"token\": \"eyJHbGciOiJIUzI1N... !\"}"
-                    ))
-            ),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "Authentication failed",
-                    content = @Content(schema = @Schema(
-                            type = "object",
-                            example = "{\"error\": \"Authentication failed\"}"
-                    ))
-            )
-    })
-    @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequestDTO dto) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
-            String token = jwtService.generateToken(authentication);
-            return ResponseEntity.ok(Map.of("token", token));
-        } catch (AuthenticationException e) {
-            return new ResponseEntity<>(Map.of("error", "Authentication failed"), HttpStatus.UNAUTHORIZED);
-        }
-    }
-
-    @Operation(
-            summary = "Get current user information",
-            description = "Retrieve information about the currently authenticated user"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Current user information send with success",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserDTO.class)))
-            ),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "User not authenticated",
-                    content = @Content(schema = @Schema(
-                            type = "object",
-                            example = "{\"error\": \"User not authenticated\"}"
-                    ))
-            )
-    })
-    @GetMapping("/me")
-    public ResponseEntity<UserDTO> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
-         User user = userDetailsService.getCurrentUser(userDetails.getUsername());
-         UserDTO dto = userService.convertToDTO(user);
-        return ResponseEntity.ok(dto);
-    }
+  @Operation(summary = "Get current user information", description = "Retrieve information about the currently authenticated user")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Current user information send with success", content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserDTO.class)))),
+      @ApiResponse(responseCode = "401", description = "User not authenticated", content = @Content(schema = @Schema(type = "object", example = "{\"error\": \"User not authenticated\"}")))
+  })
+  @GetMapping("/me")
+  public ResponseEntity<UserDTO> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+    User user = userDetailsService.getCurrentUser(userDetails.getUsername());
+    UserDTO dto = userService.convertToDTO(user);
+    return ResponseEntity.ok(dto);
+  }
 }

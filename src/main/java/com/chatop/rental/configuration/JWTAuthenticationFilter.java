@@ -17,31 +17,38 @@ import java.io.IOException;
 @Component
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JWTService jwtService;
-    private final CustomUserDetailsService customUserDetailsService;
+  private final JWTService jwtService;
+  private final CustomUserDetailsService customUserDetailsService;
 
-    public JWTAuthenticationFilter(JWTService jwtService, CustomUserDetailsService customUserDetailsService) {
-        this.jwtService = jwtService;
-        this.customUserDetailsService = customUserDetailsService;
-    }
+  public JWTAuthenticationFilter(JWTService jwtService, CustomUserDetailsService customUserDetailsService) {
+    this.jwtService = jwtService;
+    this.customUserDetailsService = customUserDetailsService;
+  }
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = extractToken(request);
-        if (token != null && jwtService.isValidToken(token)) {
-            String email = jwtService.extractEmail(token);
-            CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
-            Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        }
-        filterChain.doFilter(request, response);
+  @Override
+  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+      throws ServletException, IOException {
+    String path = request.getRequestURI();
+    if (path.startsWith("/auth/register") || path.startsWith("/auth/login")) {
+      filterChain.doFilter(request, response);
+      return;
     }
+    String token = extractToken(request);
+    if (token != null && jwtService.isValidToken(token)) {
+      String email = jwtService.extractEmail(token);
+      CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
+      Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
+          userDetails.getAuthorities());
+      SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+    filterChain.doFilter(request, response);
+  }
 
-    private String extractToken(HttpServletRequest request) {
-        String header = request.getHeader("Authorization");
-        if (header != null && header.startsWith("Bearer ")) {
-            return header.substring(7);
-        }
-        return null;
+  private String extractToken(HttpServletRequest request) {
+    String header = request.getHeader("Authorization");
+    if (header != null && header.startsWith("Bearer ")) {
+      return header.substring(7);
     }
+    return null;
+  }
 }
