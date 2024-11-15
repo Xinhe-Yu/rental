@@ -22,7 +22,7 @@ Locate the `env_template` file. Make a copy in the same folder and rename it `.e
 3. Initialize the Database Schema
 With MySQL installed and running, load the initial database schema:
 ```bash
-mysql -u root -p chatop < ./src/chatop_rental_schema.sql
+mysql -u root -p < ./src/chatop_rental_schema.sql
 ```
 - You will be prompted for the MySQL root password.
 
