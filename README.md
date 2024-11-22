@@ -36,6 +36,12 @@ After starting the application, you can view the API documentation at:
 
 API Documentation: http://localhost:3001/api/swagger-ui/index.html
 
+**Test endpoints with JWT Token :**
+
+1. Get a JWT Token by endpoint POST /auth/register or POST /auth/login
+
+2. Paste the JWT Token in the input box after clicking "Authorize" at the top right corner of the page
+
 ## 2. Libraries and Packages Overview
 This section provides an overview of the main libraries and packages used in the Chatop Rental backend application. Each package contributes essential functionality to ensure security, data management, API documentation, and secure handling of sensitive information.
 
