@@ -2,6 +2,7 @@ package com.chatop.rental.controllers;
 
 import com.chatop.rental.configuration.CustomUserDetails;
 import com.chatop.rental.dto.MessageRequestDTO;
+import com.chatop.rental.dto.MsgResponseDTO;
 import com.chatop.rental.services.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -15,8 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/messages")
@@ -35,9 +34,11 @@ public class MessageController {
       @ApiResponse(responseCode = "401", description = "Not authenticated", content = @Content(schema = @Schema(type = "object", example = "{\"error\" : \"User not authenticated\"")))
   })
   @PostMapping
-  public ResponseEntity<Map<String, String>> createMessage(@RequestBody MessageRequestDTO messageDTO,
+  public ResponseEntity<MsgResponseDTO> createMessage(@RequestBody MessageRequestDTO messageDTO,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
     messageService.createMessage(messageDTO, userDetails);
-    return ResponseEntity.ok(Map.of("message", "Message send with success"));
+
+    MsgResponseDTO response = new MsgResponseDTO("Message send with success");
+    return ResponseEntity.ok(response);
   }
 }

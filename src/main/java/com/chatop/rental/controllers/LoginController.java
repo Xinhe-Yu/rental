@@ -1,6 +1,9 @@
 package com.chatop.rental.controllers;
 
+import com.chatop.rental.dto.ApiResponseDTO;
+import com.chatop.rental.dto.ErrorResponseDTO;
 import com.chatop.rental.dto.LoginRequestDTO;
+import com.chatop.rental.dto.TokenResponseDTO;
 import com.chatop.rental.dto.UserDTO;
 import com.chatop.rental.dto.UserRegisterDTO;
 import com.chatop.rental.services.CustomUserDetailsService;
@@ -22,7 +25,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.userdetails.UserDetails;
-import java.util.Map;
 import com.chatop.rental.entities.User;
 
 @RestController
@@ -52,15 +54,18 @@ public class LoginController {
 
   })
   @PostMapping("/register")
-  public ResponseEntity<Map<String, String>> registerUser(@RequestBody UserRegisterDTO userDTO) {
+  public ResponseEntity<ApiResponseDTO> registerUser(@RequestBody UserRegisterDTO userDTO) {
     try {
       userDetailsService.save(userDTO);
       Authentication authentication = authenticationManager
           .authenticate(new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword()));
       String token = jwtService.generateToken(authentication);
-      return ResponseEntity.ok(Map.of("token", token));
+      TokenResponseDTO response = new TokenResponseDTO(token);
+      return ResponseEntity.ok(response);
     } catch (Exception e) {
-      return new ResponseEntity<>(Map.of("error", "Registration failed: " + e.getMessage()), HttpStatus.BAD_REQUEST);
+      ErrorResponseDTO response = new ErrorResponseDTO("Registration failed: " + e.getMessage());
+
+      return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -70,14 +75,16 @@ public class LoginController {
       @ApiResponse(responseCode = "401", description = "Authentication failed", content = @Content(schema = @Schema(type = "object", example = "{\"error\": \"Authentication failed\"}")))
   })
   @PostMapping("/login")
-  public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequestDTO dto) {
+  public ResponseEntity<ApiResponseDTO> login(@RequestBody LoginRequestDTO dto) {
     try {
       Authentication authentication = authenticationManager
           .authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
       String token = jwtService.generateToken(authentication);
-      return ResponseEntity.ok(Map.of("token", token));
+      TokenResponseDTO response = new TokenResponseDTO(token);
+      return ResponseEntity.ok(response);
     } catch (AuthenticationException e) {
-      return new ResponseEntity<>(Map.of("error", "Authentication failed"), HttpStatus.UNAUTHORIZED);
+      ErrorResponseDTO response = new ErrorResponseDTO("Authentication failed");
+      return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
   }
 
