@@ -6,7 +6,7 @@ import com.chatop.rental.dto.ErrorResponseDTO;
 import com.chatop.rental.dto.RentalDTO;
 import com.chatop.rental.dto.RentalListDTO;
 import com.chatop.rental.dto.RentalListResponseDTO;
-import com.chatop.rental.entities.Rental;
+import com.chatop.rental.mappers.RentalMapper;
 import com.chatop.rental.dto.MsgResponseDTO;
 import com.chatop.rental.services.RentalService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,7 +17,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/rentals")
@@ -35,9 +33,12 @@ import java.util.stream.Collectors;
 public class RentalController {
 
   private final RentalService rentalService;
+  private final RentalMapper mapper;
 
-  public RentalController(RentalService rentalService) {
+  public RentalController(RentalService rentalService,
+      RentalMapper mapper) {
     this.rentalService = rentalService;
+    this.mapper = mapper;
   }
 
   @Operation(summary = "Get a list of rentals.", description = "Retrieve all rentals with only one picture. Requires authentication.")
@@ -49,9 +50,7 @@ public class RentalController {
       return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
-    List<RentalDTO> rentals = rentalService.getAllRentals().stream()
-        .map(this::convertToListDTO)
-        .collect(Collectors.toList());
+    List<RentalDTO> rentals = mapper.convertToListDTOs(rentalService.getAllRentals());
     RentalListResponseDTO response = new RentalListResponseDTO(rentals);
     return ResponseEntity.ok(response);
   }
@@ -64,7 +63,7 @@ public class RentalController {
   })
   @GetMapping("/{id}")
   public ResponseEntity<RentalDTO> getRentalById(@PathVariable Long id) {
-    RentalDTO rental = convertToDTO(rentalService.getRentalById(id));
+    RentalDTO rental = mapper.convertToDTO(rentalService.getRentalById(id));
     return ResponseEntity.ok(rental);
   }
 
@@ -108,35 +107,4 @@ public class RentalController {
     return ResponseEntity.ok(response);
   }
 
-  @Value("${app.upload.base-url}")
-  private String baseUrl;
-
-  @Value("${server.servlet.contextPath:/api}")
-  private String contextPath;
-
-  private RentalDTO convertToDTO(Rental rental) {
-    RentalDTO dto = new RentalDTO();
-    convertCommonParamsToDTO(rental, dto);
-    dto.setPicturesFromString(baseUrl, rental.getPicture());
-    return dto;
-  }
-
-  private RentalListDTO convertToListDTO(Rental rental) {
-    RentalListDTO dto = new RentalListDTO();
-    convertCommonParamsToDTO(rental, dto);
-    dto.setPicture(baseUrl, rental.getPicture());
-    return dto;
-  }
-
-  private RentalDTO convertCommonParamsToDTO(Rental rental, RentalDTO dto) {
-    dto.setId(rental.getId());
-    dto.setName(rental.getName());
-    dto.setSurface(rental.getSurface());
-    dto.setPrice(rental.getPrice());
-    dto.setDescription(rental.getDescription());
-    dto.setOwnerId(rental.getOwnerId());
-    dto.setCreatedAt(rental.getCreatedAt());
-    dto.setUpdatedAt(rental.getUpdatedAt());
-    return dto;
-  }
 }
