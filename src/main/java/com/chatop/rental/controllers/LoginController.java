@@ -1,6 +1,9 @@
 package com.chatop.rental.controllers;
 
+import com.chatop.rental.dto.ApiResponseDTO;
+import com.chatop.rental.dto.ErrorResponseDTO;
 import com.chatop.rental.dto.LoginRequestDTO;
+import com.chatop.rental.dto.TokenResponseDTO;
 import com.chatop.rental.dto.UserDTO;
 import com.chatop.rental.dto.UserRegisterDTO;
 import com.chatop.rental.services.CustomUserDetailsService;
@@ -13,7 +16,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,7 +25,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.userdetails.UserDetails;
-import java.util.Map;
 import com.chatop.rental.entities.User;
 
 @RestController
@@ -32,17 +33,14 @@ import com.chatop.rental.entities.User;
 public class LoginController {
 
   private final CustomUserDetailsService userDetailsService;
-  private final UserService userService;
   private final AuthenticationManager authenticationManager;
   private final JWTService jwtService;
 
-  @Autowired
   public LoginController(CustomUserDetailsService userDetailsService,
       UserService userService,
       AuthenticationManager authenticationManager,
       JWTService jwtService) {
     this.userDetailsService = userDetailsService;
-    this.userService = userService;
     this.authenticationManager = authenticationManager;
     this.jwtService = jwtService;
   }
@@ -54,15 +52,18 @@ public class LoginController {
 
   })
   @PostMapping("/register")
-  public ResponseEntity<Map<String, String>> registerUser(@RequestBody UserRegisterDTO userDTO) {
+  public ResponseEntity<ApiResponseDTO> registerUser(@RequestBody UserRegisterDTO userDTO) {
     try {
-      userDetailsService.save(userDTO);
+      userDetailsService.save(userDTO.getName(), userDTO.getEmail(), userDTO.getPassword());
       Authentication authentication = authenticationManager
           .authenticate(new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword()));
       String token = jwtService.generateToken(authentication);
-      return ResponseEntity.ok(Map.of("token", token));
+      TokenResponseDTO response = new TokenResponseDTO(token);
+      return ResponseEntity.ok(response);
     } catch (Exception e) {
-      return new ResponseEntity<>(Map.of("error", "Registration failed: " + e.getMessage()), HttpStatus.BAD_REQUEST);
+      ErrorResponseDTO response = new ErrorResponseDTO("Registration failed: " + e.getMessage());
+
+      return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
   }
 
@@ -72,14 +73,16 @@ public class LoginController {
       @ApiResponse(responseCode = "401", description = "Authentication failed", content = @Content(schema = @Schema(type = "object", example = "{\"error\": \"Authentication failed\"}")))
   })
   @PostMapping("/login")
-  public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequestDTO dto) {
+  public ResponseEntity<ApiResponseDTO> login(@RequestBody LoginRequestDTO dto) {
     try {
       Authentication authentication = authenticationManager
           .authenticate(new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword()));
       String token = jwtService.generateToken(authentication);
-      return ResponseEntity.ok(Map.of("token", token));
+      TokenResponseDTO response = new TokenResponseDTO(token);
+      return ResponseEntity.ok(response);
     } catch (AuthenticationException e) {
-      return new ResponseEntity<>(Map.of("error", "Authentication failed"), HttpStatus.UNAUTHORIZED);
+      ErrorResponseDTO response = new ErrorResponseDTO("Authentication failed");
+      return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
   }
 
@@ -91,7 +94,16 @@ public class LoginController {
   @GetMapping("/me")
   public ResponseEntity<UserDTO> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
     User user = userDetailsService.getCurrentUser(userDetails.getUsername());
-    UserDTO dto = userService.convertToDTO(user);
-    return ResponseEntity.ok(dto);
+    return ResponseEntity.ok(convertToDTO(user));
+  }
+
+  private UserDTO convertToDTO(User user) {
+    UserDTO dto = new UserDTO();
+    dto.setId(user.getId());
+    dto.setName(user.getName());
+    dto.setEmail(user.getEmail());
+    dto.setCreatedAt(user.getCreatedAt());
+    dto.setUpdatedAt(user.getUpdatedAt());
+    return dto;
   }
 }
