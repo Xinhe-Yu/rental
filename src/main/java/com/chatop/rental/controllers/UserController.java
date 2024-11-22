@@ -3,6 +3,7 @@ package com.chatop.rental.controllers;
 import com.chatop.rental.dto.UserDTO;
 import com.chatop.rental.entities.User;
 import com.chatop.rental.services.UserService;
+import com.chatop.rental.mappers.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,9 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Users", description = "User management APIs")
 public class UserController {
   private final UserService userService;
+  private final UserMapper mapper;
 
-  public UserController(UserService userService) {
+  public UserController(UserService userService, UserMapper mapper) {
     this.userService = userService;
+    this.mapper = mapper;
   }
 
   @Operation(summary = "Get user by ID", description = "Retrieve detailed information about a specific user. Requires authentication.")
@@ -35,17 +38,6 @@ public class UserController {
   @GetMapping("/{id}")
   public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
     User user = userService.getUserById(id);
-
-    return ResponseEntity.ok(convertToDTO(user));
-  }
-
-  private UserDTO convertToDTO(User user) {
-    UserDTO dto = new UserDTO();
-    dto.setId(user.getId());
-    dto.setName(user.getName());
-    dto.setEmail(user.getEmail());
-    dto.setCreatedAt(user.getCreatedAt());
-    dto.setUpdatedAt(user.getUpdatedAt());
-    return dto;
+    return ResponseEntity.ok(mapper.convertToDTO(user));
   }
 }

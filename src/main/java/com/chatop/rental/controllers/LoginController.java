@@ -26,6 +26,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import com.chatop.rental.entities.User;
+import com.chatop.rental.mappers.UserMapper;
 
 @RestController
 @RequestMapping("/auth")
@@ -35,14 +36,17 @@ public class LoginController {
   private final CustomUserDetailsService userDetailsService;
   private final AuthenticationManager authenticationManager;
   private final JWTService jwtService;
+  private final UserMapper mapper;
 
   public LoginController(CustomUserDetailsService userDetailsService,
       UserService userService,
       AuthenticationManager authenticationManager,
-      JWTService jwtService) {
+      JWTService jwtService,
+      UserMapper mapper) {
     this.userDetailsService = userDetailsService;
     this.authenticationManager = authenticationManager;
     this.jwtService = jwtService;
+    this.mapper = mapper;
   }
 
   @Operation(summary = "Create a new count", description = "Create a new count.")
@@ -94,16 +98,6 @@ public class LoginController {
   @GetMapping("/me")
   public ResponseEntity<UserDTO> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
     User user = userDetailsService.getCurrentUser(userDetails.getUsername());
-    return ResponseEntity.ok(convertToDTO(user));
-  }
-
-  private UserDTO convertToDTO(User user) {
-    UserDTO dto = new UserDTO();
-    dto.setId(user.getId());
-    dto.setName(user.getName());
-    dto.setEmail(user.getEmail());
-    dto.setCreatedAt(user.getCreatedAt());
-    dto.setUpdatedAt(user.getUpdatedAt());
-    return dto;
+    return ResponseEntity.ok(mapper.convertToDTO(user));
   }
 }
