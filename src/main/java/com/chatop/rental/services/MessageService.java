@@ -1,7 +1,6 @@
 package com.chatop.rental.services;
 
 import com.chatop.rental.configuration.CustomUserDetails;
-import com.chatop.rental.dto.MessageRequestDTO;
 import com.chatop.rental.entities.Message;
 import com.chatop.rental.entities.Rental;
 import com.chatop.rental.entities.User;
@@ -27,13 +26,13 @@ public class MessageService {
     this.userRepository = userRepository;
   }
 
-  public void createMessage(MessageRequestDTO messageDTO, CustomUserDetails userDetails) {
+  public void createMessage(Long rentalID, String content, CustomUserDetails userDetails) {
     User user = getUserFromUserDetails(userDetails);
 
-    Rental rental = rentalRepository.findById(messageDTO.getRentalId())
+    Rental rental = rentalRepository.findById(rentalID)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Rental not found"));
 
-    Message message = new Message(rental, user, messageDTO.getMessage());
+    Message message = new Message(rental, user, content);
     messageRepository.save(message);
   }
 

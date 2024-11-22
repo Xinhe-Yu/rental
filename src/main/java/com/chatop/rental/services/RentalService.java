@@ -1,14 +1,11 @@
 package com.chatop.rental.services;
 
 import com.chatop.rental.configuration.CustomUserDetails;
-import com.chatop.rental.dto.RentalDTO;
-import com.chatop.rental.dto.RentalListDTO;
 import com.chatop.rental.entities.Rental;
 import com.chatop.rental.entities.User;
 import com.chatop.rental.repositories.RentalRepository;
 import com.chatop.rental.repositories.UserRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -25,12 +22,6 @@ public class RentalService {
   private final UserRepository userRepository;
   private final FileService fileService;
 
-  @Value("${app.upload.base-url}")
-  private String baseUrl;
-
-  @Value("${server.servlet.contextPath:/api}")
-  private String contextPath;
-
   public RentalService(RentalRepository rentalRepository,
       UserRepository userRepository,
       FileService fileService) {
@@ -39,15 +30,13 @@ public class RentalService {
     this.fileService = fileService;
   }
 
-  public List<RentalDTO> getAllRentals() {
+  public List<Rental> getAllRentals() {
     return rentalRepository.findAll().stream()
-        .map(this::convertToListDTO)
         .collect(Collectors.toList());
   }
 
-  public RentalDTO getRentalById(Long id) {
+  public Rental getRentalById(Long id) {
     return rentalRepository.findById(id)
-        .map(this::convertToDTO)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Rental not found"));
   }
 
@@ -84,32 +73,6 @@ public class RentalService {
     }
 
     rentalRepository.delete(rental);
-  }
-
-  private RentalDTO convertToDTO(Rental rental) {
-    RentalDTO dto = new RentalDTO();
-    convertCommonParamsToDTO(rental, dto);
-    dto.setPicturesFromString(baseUrl, rental.getPicture());
-    return dto;
-  }
-
-  private RentalListDTO convertToListDTO(Rental rental) {
-    RentalListDTO dto = new RentalListDTO();
-    convertCommonParamsToDTO(rental, dto);
-    dto.setPicture(baseUrl, rental.getPicture());
-    return dto;
-  }
-
-  private RentalDTO convertCommonParamsToDTO(Rental rental, RentalDTO dto) {
-    dto.setId(rental.getId());
-    dto.setName(rental.getName());
-    dto.setSurface(rental.getSurface());
-    dto.setPrice(rental.getPrice());
-    dto.setDescription(rental.getDescription());
-    dto.setOwnerId(rental.getOwnerId());
-    dto.setCreatedAt(rental.getCreatedAt());
-    dto.setUpdatedAt(rental.getUpdatedAt());
-    return dto;
   }
 
   private Rental convertCommonParamsToEntity(Rental rental, String name, Double surface, Double price,

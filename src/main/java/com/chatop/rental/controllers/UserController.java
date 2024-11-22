@@ -1,6 +1,7 @@
 package com.chatop.rental.controllers;
 
 import com.chatop.rental.dto.UserDTO;
+import com.chatop.rental.entities.User;
 import com.chatop.rental.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -33,7 +34,18 @@ public class UserController {
   })
   @GetMapping("/{id}")
   public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
-    UserDTO user = userService.getUserById(id);
-    return ResponseEntity.ok(user);
+    User user = userService.getUserById(id);
+
+    return ResponseEntity.ok(convertToDTO(user));
+  }
+
+  private UserDTO convertToDTO(User user) {
+    UserDTO dto = new UserDTO();
+    dto.setId(user.getId());
+    dto.setName(user.getName());
+    dto.setEmail(user.getEmail());
+    dto.setCreatedAt(user.getCreatedAt());
+    dto.setUpdatedAt(user.getUpdatedAt());
+    return dto;
   }
 }

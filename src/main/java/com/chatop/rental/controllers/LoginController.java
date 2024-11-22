@@ -33,7 +33,6 @@ import com.chatop.rental.entities.User;
 public class LoginController {
 
   private final CustomUserDetailsService userDetailsService;
-  private final UserService userService;
   private final AuthenticationManager authenticationManager;
   private final JWTService jwtService;
 
@@ -42,7 +41,6 @@ public class LoginController {
       AuthenticationManager authenticationManager,
       JWTService jwtService) {
     this.userDetailsService = userDetailsService;
-    this.userService = userService;
     this.authenticationManager = authenticationManager;
     this.jwtService = jwtService;
   }
@@ -56,7 +54,7 @@ public class LoginController {
   @PostMapping("/register")
   public ResponseEntity<ApiResponseDTO> registerUser(@RequestBody UserRegisterDTO userDTO) {
     try {
-      userDetailsService.save(userDTO);
+      userDetailsService.save(userDTO.getName(), userDTO.getEmail(), userDTO.getPassword());
       Authentication authentication = authenticationManager
           .authenticate(new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword()));
       String token = jwtService.generateToken(authentication);
@@ -96,7 +94,16 @@ public class LoginController {
   @GetMapping("/me")
   public ResponseEntity<UserDTO> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
     User user = userDetailsService.getCurrentUser(userDetails.getUsername());
-    UserDTO dto = userService.convertToDTO(user);
-    return ResponseEntity.ok(dto);
+    return ResponseEntity.ok(convertToDTO(user));
+  }
+
+  private UserDTO convertToDTO(User user) {
+    UserDTO dto = new UserDTO();
+    dto.setId(user.getId());
+    dto.setName(user.getName());
+    dto.setEmail(user.getEmail());
+    dto.setCreatedAt(user.getCreatedAt());
+    dto.setUpdatedAt(user.getUpdatedAt());
+    return dto;
   }
 }

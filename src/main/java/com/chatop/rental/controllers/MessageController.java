@@ -36,7 +36,7 @@ public class MessageController {
   @PostMapping
   public ResponseEntity<MsgResponseDTO> createMessage(@RequestBody MessageRequestDTO messageDTO,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
-    messageService.createMessage(messageDTO, userDetails);
+    messageService.createMessage(messageDTO.getRentalId(), messageDTO.getMessage(), userDetails);
 
     MsgResponseDTO response = new MsgResponseDTO("Message send with success");
     return ResponseEntity.ok(response);

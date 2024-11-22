@@ -1,7 +1,6 @@
 package com.chatop.rental.services;
 
 import com.chatop.rental.configuration.CustomUserDetails;
-import com.chatop.rental.dto.UserRegisterDTO;
 import com.chatop.rental.entities.User;
 import com.chatop.rental.repositories.UserRepository;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -38,11 +37,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     return user;
   }
 
-  public void save(UserRegisterDTO userDTO) {
+  public void save(String name, String email, String password) {
     User user = new User();
-    user.setName(userDTO.getName());
-    user.setEmail(userDTO.getEmail());
-    user.setEncodedPassword(passwordEncoder.encode(userDTO.getPassword()));
+    user.setName(name);
+    user.setEmail(email);
+    user.setEncodedPassword(passwordEncoder.encode(password));
     user.setRole("");
     userRepository.save(user);
   }
