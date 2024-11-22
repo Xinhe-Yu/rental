@@ -39,6 +39,7 @@ API Documentation: http://localhost:3001/api/swagger-ui/index.html
 **Test endpoints with JWT Token :**
 
 1. Get a JWT Token by endpoint POST /auth/register or POST /auth/login
+
 2. Paste the JWT Token in the input box after clicking "Authorize" at the top right corner of the page
 
 ## 2. Libraries and Packages Overview
