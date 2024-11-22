@@ -17,7 +17,7 @@ mvn clean install
 
 2. Configure `application.properties`
 
-Locate the `env_template` file. Make a copy in the same folder and rename it `.env`. Add your MySQL root's password to `DB_PASSWORD`.
+Locate the `env_template` file. Make a copy in the same folder and rename it `.env`. Add your MySQL root's username and password.
 
 3. Initialize the Database Schema
 With MySQL installed and running, load the initial database schema:
